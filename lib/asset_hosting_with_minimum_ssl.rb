@@ -1,8 +1,8 @@
 class AssetHostingWithMinimumSsl
-  attr_accessor :asset_host, :ssl_asset_host
+  attr_accessor :asset_host, :ssl_asset_host, :server_pool_size
   
-  def initialize(asset_host, ssl_asset_host)
-    self.asset_host, self.ssl_asset_host = asset_host, ssl_asset_host
+  def initialize(asset_host, ssl_asset_host, server_pool_size = 4)
+    self.asset_host, self.ssl_asset_host, self.server_pool_size = asset_host, ssl_asset_host, server_pool_size
   end
   
   def call(source, request)
@@ -21,17 +21,15 @@ class AssetHostingWithMinimumSsl
       asset_host(source)
     end
   end
-  
-  
+    
   private
     def asset_host(source)
-      @asset_host % (source.hash % 4)
+      @asset_host % (source.hash % self.server_pool_size)
     end
 
     def ssl_asset_host(source)
-      @ssl_asset_host % (source.hash % 4)
+      @ssl_asset_host % (source.hash % self.server_pool_size)
     end
-
 
     def javascript_file?(source)
       source =~ /\.js(\?.*)?$/ 
@@ -40,7 +38,6 @@ class AssetHostingWithMinimumSsl
     def image_file?(source)
       source =~ /^\/images/
     end
-
 
     def safari?(request)
       request.headers["USER_AGENT"] =~ /Safari/

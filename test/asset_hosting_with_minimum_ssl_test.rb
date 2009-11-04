@@ -53,6 +53,16 @@ class AssetHostingWithMinimumSslTest < Test::Unit::TestCase
       @asset_host.call("/stylesheets/application.css", ssl_request_from("IE"))
   end
   
+  def test_should_default_the_number_of_asset_hosts
+    assert_equal 4, @asset_host.server_pool_size
+  end
+  
+  def test_allow_the_number_of_asset_hosts_to_be_configurable
+    @asset_host.server_pool_size = 7
+     assert_match \
+        non_ssl_host, 
+        @asset_host.call("/images/test.png", ssl_request_from("Firefox"))
+  end
 
   private
     def non_ssl_host
