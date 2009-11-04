@@ -19,6 +19,12 @@ class AssetHostingWithMinimumSslTest < Test::Unit::TestCase
     end
   end
 
+  def test_ssl_requests_for_javascript_files_with_a_querystring_should_stay_ssl_regardless_of_the_browser
+    %(Safari Firefox IE).each do |browser|
+      assert_equal ssl_host, @asset_host.call("/javascripts/prototype.js?123456789", ssl_request_from(browser))
+    end
+  end
+
   def test_ssl_requests_for_anything_but_js_files_should_go_non_ssl_on_safari
     assert_match \
       non_ssl_host, 
